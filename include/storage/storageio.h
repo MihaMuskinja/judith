@@ -18,6 +18,7 @@
 #define MAX_TRACKS 1000
 #define MAX_CLUSTERS 10000
 #define MAX_HITS 10000
+#define MAX_WAVEFORM_POINTS 1024
 
 namespace Storage {
 
@@ -26,6 +27,9 @@ class Cluster;
 class Plane;
 class Track;
 class Event;
+
+// iterator for a map of waveforms
+typedef std::map<std::string, std::vector<float>* >::iterator waveform_it;
 
 /**
   * Interface for a `TFile` used for either input or output. Caches the event-
@@ -113,6 +117,7 @@ protected:
   // Trees containing event-by-event data for each plane
   std::vector<TTree*> m_hitsTrees;
   std::vector<TTree*> m_clustersTrees;
+  std::vector<TTree*> m_waveformsTrees;
   // Trees global to the entire event
   TTree* m_tracksTree;
   TTree* m_eventInfoTree;
@@ -171,6 +176,8 @@ protected:
   Double_t trackCovarianceX[MAX_TRACKS];
   Double_t trackCovarianceY[MAX_TRACKS];
   Double_t trackChi2[MAX_TRACKS];
+
+  std::map<std::string, float* > Waveforms;
 
   /** Cached make new track only for friend Event class */
   Track& newTrack();

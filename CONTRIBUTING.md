@@ -8,7 +8,7 @@ Editing the code
 1. Get a [GitHub account](https://github.com/signup/free)
 2. [Fork this repository](https://github.com/gmcgoldr/judith/fork)
 3. Clone your fork:  
-   `git clone htts://github.com/yourusername/judith.git`
+   `git clone https://github.com/yourusername/judith.git`
 4. Make a branch in which you will work:  
    `git checkout -b name_describing_work master`
 5. Modify your branch and make commits as you implement feautres:  

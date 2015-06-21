@@ -14,7 +14,7 @@
 #include "storage/cluster.h"
 #include "storage/hit.h"
 
-#define NPLANES 1
+#define NPLANES 2
 #define NEVENTS 2
 
 bool approxEqual(double v1, double v2, double tol=1E-10) {
@@ -224,6 +224,18 @@ int test_storageioWrite() {
 
     cluster.addHit(hit);
     track.addCluster(cluster);
+
+    std::vector<float>* wf1 = new std::vector<float>;
+    std::vector<float>* wf2 = new std::vector<float>;
+    for(unsigned int i = 0; i<1024; i++){
+      wf1->push_back(i);
+      if(i%2==0) wf2->push_back(i);
+    }
+    Storage::Plane& plane0 = event.getPlane(0);
+    Storage::Plane& plane1 = event.getPlane(1);
+    plane0.addWaveform("waveform1",wf1);
+    plane0.addWaveform("waveform2",wf2);
+    plane1.addWaveform("waveform3",wf1);
 
     store.writeEvent(event);
   }
@@ -497,7 +509,7 @@ int main() {
   }
 
   // Remove file on success, otherwise keep it so it can be consulted
-  gSystem->Exec("rm -f tmp.root");
+  //gSystem->Exec("rm -f tmp.root");
 
   return 0;
 }

@@ -74,6 +74,9 @@ StorageIO::~StorageIO() {
   for (std::vector<TTree*>::iterator it = m_clustersTrees.begin();
       it != m_clustersTrees.end(); ++it)
     if (*it) delete (*it);
+  for (std::vector<TTree*>::iterator it = m_waveformsTrees.begin();
+      it != m_waveformsTrees.end(); ++it)
+    if (*it) delete (*it);
   if (m_tracksTree) delete m_tracksTree;
   if (m_eventInfoTree) delete m_eventInfoTree;
 
