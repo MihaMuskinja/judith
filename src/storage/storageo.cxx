@@ -260,7 +260,7 @@ void StorageO::writeEvent(Event& event) {
         throw std::runtime_error(
           "StorageO::WriteEvent: Number of waveform points exceeds MAX_WAVEFORM_POINTS");
 
-      // create a key in Waveforms it it doesn't exist
+      // create a key in Waveforms if it doesn't exist
       if(Waveforms.find(iterator->first)==Waveforms.end())
         Waveforms.insert( std::pair<std::string, float* > 
           ( iterator->first, new float[MAX_WAVEFORM_POINTS] ) );
