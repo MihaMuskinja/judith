@@ -113,7 +113,7 @@ StorageO::StorageO(
         clustersTreePl->Branch("InTrack", clusterInTrack, "ClusterInTrack[NClusters]/I");
     }
 
-    if (treeMask) {
+    if (treeMask & WAVEFORMS) {
       TTree* waveformsTreePl = new TTree("Waveforms", "Waveforms");
       m_waveformsTrees.push_back(waveformsTreePl);
     }
@@ -256,20 +256,20 @@ void StorageO::writeEvent(Event& event) {
     std::map<std::string, std::vector<float>* > wfs = plane.getWaveforms();
     for (waveform_it iterator = wfs.begin(); iterator != wfs.end(); iterator++){
       if(iterator->second->size() > MAX_WAVEFORM_POINTS)
-        std::cerr << "Storage: Number of waveform points exceeds " << MAX_WAVEFORM_POINTS << std::endl;
+        throw std::runtime_error(
+          "StorageO::WriteEvent: Number of waveform points exceeds MAX_WAVEFORM_POINTS");
       float* temp_wf = new float[MAX_WAVEFORM_POINTS];
       for(unsigned int i=0; i<iterator->second->size();i++) 
         temp_wf[i] = iterator->second->at(i);
 
       // create a key in Waveforms it it doesn't exist
-      if(Waveforms.find(iterator->first)==Waveforms.end()){
-        Waveforms.insert( std::pair<std::string, float* >
-          (iterator->first, temp_wf) );
+      if(Waveforms.find(iterator->first)==Waveforms.end()) {
+        Waveforms.insert( std::pair<std::string, float* > (iterator->first, temp_wf) );
       }
       else *Waveforms.at(iterator->first) = *temp_wf;
 
       // create a new waveform branch if it doesn't yet exist
-      if( m_waveformsTrees.at(nplane) ) {
+      if( !m_waveformsTrees.empty() ) {
         if( !m_waveformsTrees.at(nplane)->GetBranch(iterator->first.c_str()) ) {
           std::stringstream branchType; branchType << iterator->first << 
           "[" << iterator->second->size() << "]/F";

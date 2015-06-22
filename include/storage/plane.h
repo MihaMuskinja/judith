@@ -42,7 +42,7 @@ public:
   Hit& getHit(size_t n) const;
   Cluster& getCluster(size_t n) const;
 
-  std::vector<float>* getWaveform(std::string waveformName);
+  std::vector<float>* getWaveform(std::string waveformName) const;
   void addWaveform(std::string waveformName, std::vector<float>* wf);
 
   const std::vector<Hit*>& getHits() const { return m_hits; }

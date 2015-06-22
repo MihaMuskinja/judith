@@ -46,17 +46,15 @@ Cluster& Plane::getCluster(size_t n) const {
   return *m_clusters[n];
 }
 
-void Plane::addWaveform(std::string waveformName, std::vector<float>* wf)
-{
-  _waveforms.insert( std::pair< std::string, std::vector<float>* >(waveformName, wf ) );
-  return;
-}
-
-std::vector<float>* Plane::getWaveform(std::string waveformName)
-{
+std::vector<float>* Plane::getWaveform(std::string waveformName) const {
   assert(!(_waveforms.find(waveformName) == _waveforms.end()) && 
     "Plane: requested waveform is not available");
-  return _waveforms[waveformName];
+  return _waveforms.at(waveformName);
+}
+
+void Plane::addWaveform(std::string waveformName, std::vector<float>* wf) {
+  _waveforms.insert( std::pair< std::string, std::vector<float>* >(waveformName, wf ) );
+  return;
 }
 
 }

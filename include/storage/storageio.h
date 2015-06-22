@@ -62,6 +62,7 @@ public:
     CLUSTERS = 1<<1,
     TRACKS = 1<<2,
     EVENTINFO = 1<<3,
+    WAVEFORMS = 1<<4
   };
 
   enum FileMode {
