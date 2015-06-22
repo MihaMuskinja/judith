@@ -10,6 +10,7 @@
 #include <TDirectory.h>
 #include <TTree.h>
 #include <TBranch.h>
+#include <TObjArray.h>
 
 #include "storage/hit.h"
 #include "storage/cluster.h"
@@ -71,6 +72,29 @@ StorageI::StorageI(
       continue;
 
     m_numPlanes += 1;
+
+    TTree* waveforms = 0;
+    // Try to load the tree if waveforms are enabled
+    if (treeMask & WAVEFORMS)
+      // open the Waveforms TTree from the file and save it to waveforms
+      m_file.GetObject((ss.str()+"/Waveforms").c_str(), waveforms);
+    // Check that a waveforms tree was loaded
+    if (waveforms) {
+      // Add this tree to the current plane
+      m_waveformsTrees.push_back(waveforms);
+      // retrieve all of the branches from the tree
+      TObjArray* bArray = waveforms->GetListOfBranches();
+      // loop over all the branches
+      for (Int_t i = 0; i < bArray->GetEntries(); i++ ) {
+        // retreive the name of the waveform branch
+        const char* bName = bArray->At(i)->GetName();
+        // create a new float* key in Waveforms map
+        Waveforms.insert( std::pair<std::string, float* > 
+          (std::string(bName), new float[MAX_WAVEFORM_POINTS] ) );
+        // set address of the branch
+        waveforms->SetBranchAddress(bName, Waveforms.at( std::string(bName) ) );
+      } // loop over waveform branches
+    }
 
     TTree* hits = 0;
     // Try to load the tree if hits are enabled
@@ -379,6 +403,12 @@ Event& StorageI::readEvent(Long64_t n) {
       throw std::runtime_error(
           "StorageIO::readEvent: error reading clusters tree");
 
+    // WAVEFORMS ARE READ OUT BRANCH BY BRANCH TO EXTRACT THE SIZE OF EACH BRANCH
+    //// Try to read the waveforms tree for this plane
+    //if (!m_waveformsTrees.empty() && m_waveformsTrees[nplane]->GetEntry(n) <= 0)
+    //  throw std::runtime_error(
+    //      "StorageIO::readEvent: error reading waveforms tree");
+
     // Generate the cluster objects
     for (Int_t ncluster = 0; ncluster < numClusters; ncluster++) {
       Cluster& cluster = event.newCluster(nplane);
@@ -431,6 +461,26 @@ Event& StorageI::readEvent(Long64_t n) {
         cluster.addHit(hit);  // Bidirectional linking
       }
     }
+
+    // Insert waveforms into the plane
+    // retrieve all of the branches from the tree
+    TObjArray* bArray = new TObjArray();
+    bArray = m_waveformsTrees[nplane]->GetListOfBranches();
+    int bSize = 0;
+    // loop over all the branches
+    for (Int_t i = 0; i < bArray->GetEntries(); i++ ) {
+      // read the waveform branch for this plane and store its size
+      bSize = ((TBranch*) bArray->At(i))->GetEntry(n);
+      // read the name of the branch
+      std::string bName( bArray->At(i)->GetName() );
+      // create a new std::vector<float> waveform and fill it
+      std::vector<float>* temp_wf = new std::vector<float>;
+      for (unsigned int i=0; i < bSize/sizeof(float); i++) {
+        temp_wf->push_back( Waveforms.at(bName)[i] );
+      }
+      event.getPlane(nplane).addWaveform(bName, temp_wf);
+    } // loop over waveform branches
+
   }  // Loop over planes
 
   return event;

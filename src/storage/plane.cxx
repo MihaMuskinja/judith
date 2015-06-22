@@ -14,6 +14,7 @@ Plane::Plane(size_t nplane) : m_planeNum(nplane) {}
 void Plane::clear() {
   m_hits.clear();
   m_clusters.clear();
+  m_waveforms.clear();
 }
 
 void Plane::print() {
@@ -47,13 +48,13 @@ Cluster& Plane::getCluster(size_t n) const {
 }
 
 std::vector<float>* Plane::getWaveform(std::string waveformName) const {
-  assert(!(_waveforms.find(waveformName) == _waveforms.end()) && 
+  assert(!(m_waveforms.find(waveformName) == m_waveforms.end()) && 
     "Plane: requested waveform is not available");
-  return _waveforms.at(waveformName);
+  return m_waveforms.at(waveformName);
 }
 
 void Plane::addWaveform(std::string waveformName, std::vector<float>* wf) {
-  _waveforms.insert( std::pair< std::string, std::vector<float>* >(waveformName, wf ) );
+  m_waveforms.insert( std::pair< std::string, std::vector<float>* >(waveformName, wf ) );
   return;
 }
 

@@ -225,17 +225,15 @@ int test_storageioWrite() {
     cluster.addHit(hit);
     track.addCluster(cluster);
 
-    std::vector<float>* wf1 = new std::vector<float>;
-    std::vector<float>* wf2 = new std::vector<float>;
+    std::vector<float>* wf1 = new std::vector<float>();
+    std::vector<float>* wf2 = new std::vector<float>();
     for(unsigned int i = 0; i<1024; i++){
-      wf1->push_back(i);
-      if(i%2==0) wf2->push_back(i);
+      wf1->push_back(i+10000*(n+1));
+      if(i%2==0) wf2->push_back(i+10000*(n+1));
     }
-    Storage::Plane& plane0 = event.getPlane(0);
-    Storage::Plane& plane1 = event.getPlane(1);
-    plane0.addWaveform("waveform1",wf1);
-    plane0.addWaveform("waveform2",wf2);
-    plane1.addWaveform("waveform3",wf1);
+    event.getPlane(0).addWaveform("waveform1",wf1);
+    event.getPlane(0).addWaveform("waveform2",wf2);
+    if (NPLANES>1) event.getPlane(1).addWaveform("waveform3",wf1);
 
     store.writeEvent(event);
   }
@@ -326,6 +324,28 @@ int test_storageioRead() {
         hit.getValue() != 2*n+1) {
       std::cerr << "Storage::StorageI: hit read back incorrect" << std::endl;
       return -1;
+    }
+
+    for (int i = 0; i < NPLANES; i++) {
+      Storage::Plane& plane = event.getPlane(i);
+      std::map<std::string, std::vector<float>* > wfs = plane.getWaveforms();
+      for (Storage::waveform_it iterator = wfs.begin(); iterator != wfs.end(); iterator++) {
+        for(unsigned int i = 0; i < iterator->second->size(); i++ ) {
+          if ( !iterator->first.compare("waveform1") ) {
+            if ( iterator->second->at(i) != i+10000*(n+1) )
+              std::cerr << "waveform1 has unexpected value at i = " << i << std::endl;
+          }
+          else if ( !iterator->first.compare("waveform2") ) {
+            if ( iterator->second->at(i) != 2*i+10000*(n+1) )
+              std::cerr << "waveform1 has unexpected value at i = " << i << std::endl;
+          }
+          else if ( !iterator->first.compare("waveform3") ) {
+            if ( iterator->second->at(i) != i+10000*(n+1) )
+              std::cerr << "waveform1 has unexpected value at i = " << i << std::endl;
+          }
+          else std::cerr << "waveform name " << iterator->first << " was not expected!" << std::endl;
+        }
+      }
     }
   }
 

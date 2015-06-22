@@ -25,7 +25,7 @@ protected:
   /** List of clusters in this plane for an event */
   std::vector<Cluster*> m_clusters;
   /** Map of waveforms in this plane for an event */
-  std::map< std::string, std::vector<float>* > _waveforms;
+  std::map< std::string, std::vector<float>* > m_waveforms;
 
   /** Only constructed by an `Event` object */
   Plane(size_t nplane);
@@ -51,7 +51,7 @@ public:
   inline size_t getPlaneNum() const { return m_planeNum; }
   inline size_t getNumHits() const { return m_hits.size(); }
   inline size_t getNumClusters() const { return m_clusters.size(); }
-  inline std::map< std::string, std::vector<float>* > getWaveforms() const { return _waveforms; }
+  inline std::map< std::string, std::vector<float>* > getWaveforms() const { return m_waveforms; }
 
 
   friend class Event;
